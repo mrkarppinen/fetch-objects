@@ -1,0 +1,24 @@
+{
+    "Labels": [
+        {
+            "Confidence": 98.4629,
+            "Name": "beacon"
+        },
+        {
+            "Confidence": 98.4629,
+            "Name": "building"
+        },
+        {
+            "Confidence": 98.4629,
+            "Name": "lighthouse"
+        },
+        {
+            "Confidence": 87.7924,
+            "Name": "rock"
+        },
+        {
+            "Confidence": 68.1049,
+            "Name": "sea"
+        }
+    ]
+}

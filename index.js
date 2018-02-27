@@ -1,10 +1,20 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const Classifier = require('./src/classifier');
 
 const key = process.env.key;
 const secret = process.env.secret;
 
+
+ const rekognition = new AWS.Rekognition({
+    region: 'us-east-1',
+    apiVersion: '2016-06-27',
+    accessKeyId: key,
+    secretAccessKey: secret
+});
+
+const classifier = new Classifier(rekognition);
 
 exports.handler = (event, context, callback) => {
     
@@ -12,24 +22,8 @@ exports.handler = (event, context, callback) => {
 
         let body = JSON.parse(event.body)
 
-        let params = {
-            Image: {
-                Bytes: Buffer.from(body.analyze,'base64')
-            },
-            MaxLabels: 20,
-            MinConfidence: 25
-        };
-
-        let rekognition = new AWS.Rekognition({
-            region: 'us-east-1',
-            apiVersion: '2016-06-27',
-            accessKeyId: key,
-            secretAccessKey: secret
-        });
-
-        rekognition.detectLabels(params, function(err, data) {
-            if (err) callback(null, message(err)) 
-            else     callback(null, message(data));
+        classifier.byDataURI(body.analyze).then( (data) => {
+            callback(null, message(data));
         });
 
     }else {
@@ -37,8 +31,6 @@ exports.handler = (event, context, callback) => {
         callback(null, message({msg: 'what!?'}));
 
     }
-
-
 
 };
 
@@ -48,7 +40,10 @@ function message(body){
             statusCode: '200',
             body: JSON.stringify(body),
             headers: {
-                'Content-type': 'application/json'
+                'Content-type': 'application/json',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Api-Key',
+                'Access-Control-Allow-Methods':  'POST',
+                'Access-Control-Allow-Origin': '*'
             }    
     };
 }
