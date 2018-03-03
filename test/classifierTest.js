@@ -3,18 +3,18 @@ const chai = require("chai");
 const expect = chai.expect;
 const tdChai = require("testdouble-chai");
 const fs = require('fs');
-const Classifier = require('../src/classifier');
+const Classifier = require('../lib/classifier');
 
 chai.use(tdChai(td)); 
 
-describe('Classify', function (){
+describe('Classifier', function (){
 
     let endpoint;
     let classifier;
     let dataURI = 'SGVsbG8sIFdvcmxkIQ%3D%3D';
 
      before( function (){
-        let response = JSON.parse(fs.readFileSync('./test-resources/example-response.json', 'utf8'));
+        let response = JSON.parse(fs.readFileSync('./test/resources/example-response.json', 'utf8'));
 
         endpoint = td.object(['detectLabels']);
 

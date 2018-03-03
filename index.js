@@ -1,7 +1,7 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const Classifier = require('./src/classifier');
+const Classifier = require('./lib/classifier');
 
 const key = process.env.key;
 const secret = process.env.secret;
