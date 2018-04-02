@@ -1,49 +1,42 @@
 const td = require("testdouble");
 const chai = require("chai");
 const expect = chai.expect;
-const tdChai = require("testdouble-chai");
-const fs = require('fs');
-const Classifier = require('../lib/classifier');
-
-chai.use(tdChai(td)); 
-
-describe('Classifier', function (){
-
-    let endpoint;
-    let classifier;
-    let dataURI = 'SGVsbG8sIFdvcmxkIQ%3D%3D';
-
-     before( function (){
-        let response = JSON.parse(fs.readFileSync('./test/resources/example-response.json', 'utf8'));
-
-        endpoint = td.object(['detectLabels']);
-
-        let params = {
-            Image: {
-                Bytes: Buffer.from(dataURI,'base64')
-            },
-            MaxLabels: 20,
-            MinConfidence: 25
-        };
-
-        td.when(endpoint.detectLabels(params)).thenCallback(null, response);
-    
-        classifier = new Classifier(endpoint); 
-     });   
+const classifier = require('../lib/classifier');
 
 
-     describe('byDataURI', function (){
+describe('classifier', function (){
 
-        it("valid request", function() {
-            
-                return classifier.byDataURI(dataURI).then( (response) => {
-                    
-                    expect(response['Labels']).not.to.be.null;
-                    expect(response.Labels[0].Name).to.equal('beacon');
+   
+     const callback = (rekognition, data) => Promise.resolve([rekognition, data]);
 
-                });
-                
-                
+     const data = '1234';
+     const rekognition = '5678';
+     const event = {body: JSON.stringify({analyze: data}) };
+
+     describe('validateInput()', function (){
+
+        it("valid input", function() {
+                const ok = classifier.validateInput(event);
+                expect(ok).equal(data);
+        });
+
+        it("invalid input", function() {
+                const ok = classifier.validateInput({body: '{}'});
+                expect(ok).to.be.undefined;
+        });
+
+    });
+
+    describe('analyze', function (){
+
+        it('should analyze', function (){
+
+            const analyze = classifier.analyze(rekognition, callback);
+            return analyze(event).then( (arr) => {
+                expect(arr[0]).to.equal(rekognition);
+                expect(arr[1]).to.equal(data);
+            });
+
         });
 
     });

@@ -1,7 +1,8 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const Classifier = require('./lib/classifier');
+const functions = require('./lib/functions');
+const classifier = require('./lib/classifier');
 
 const key = process.env.key;
 const secret = process.env.secret;
@@ -14,23 +15,16 @@ const secret = process.env.secret;
     secretAccessKey: secret
 });
 
-const classifier = new Classifier(rekognition);
+const analyzeByDataUri = classifier.analyze(rekognition, functions.byDataUri);
 
 exports.handler = (event, context, callback) => {
-    
-    if (event.body !== null && event.body !== undefined) {
-
-        let body = JSON.parse(event.body)
-
-        classifier.byDataURI(body.analyze).then( (data) => {
+        analyzeByDataUri(event)
+        .then( (data) => {
             callback(null, message(data));
+        })
+        .catch((err) => {
+            callback(null, message({msg: 'what!?'}));
         });
-
-    }else {
-
-        callback(null, message({msg: 'what!?'}));
-
-    }
 
 };
 
